@@ -1,18 +1,36 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "../store/index.js";
+
+import { auth, firestore } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { getDoc, doc, setDoc } from "@firebase/firestore";
 
 const router = useRouter();
 const username = ref("");
 const password = ref("");
+const store = useStore();
 
-const login = () => {
-  if (username.value === "tmdb" && password.value === "movies") {
-    router.push("/purchase");
-  } else {
-    alert("Invalid username/password!");
+const login = async () => {
+  const provider = new GoogleAuthProvider();
+  const { user } = await signInWithPopup(auth, provider);
+  store.user = user;
+  const data = await getDoc(doc(firestore, "carts", user.email));
+  if (data.exists()){
+    store.cart = data.data();
   }
-  console.log(username.value, password.value);
+  else {
+    await setDoc(doc(firestore, "carts", user.email), {cart: []})
+    console.log (data)
+    store.cart = data.data()
+  }
+  router.push("/purchase");
 };
 </script>
 
@@ -23,7 +41,11 @@ const login = () => {
     <input type="text" placeholder="username" v-model="username" />
     <input type="password" placeholder="password" v-model="password" />
     <button>login</button>
+  
+    <button @click = "login()">Login with google</button>
+  
   </form>
+
 </template>
 
 <style scoped>
