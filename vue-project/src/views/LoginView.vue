@@ -21,14 +21,15 @@ const login = async () => {
   const provider = new GoogleAuthProvider();
   const { user } = await signInWithPopup(auth, provider);
   store.user = user;
+  console.log(store.user)
   const data = await getDoc(doc(firestore, "carts", user.email));
   if (data.exists()){
-    store.cart = data.data();
+    store.cart = data.data().cart;
   }
   else {
     await setDoc(doc(firestore, "carts", user.email), {cart: []})
     console.log (data)
-    store.cart = data.data()
+    store.cart = data.data().cart
   }
   router.push("/purchase");
 };
