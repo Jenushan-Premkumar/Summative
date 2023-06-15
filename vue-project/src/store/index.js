@@ -22,7 +22,7 @@ export const useStore = defineStore("store", {
     },
     async removeFromCart(index) {
       this.cart.splice(index, 1);
-      await setDoc(doc(firestore, "carts", this.user.email), {
+       delete setDoc(doc(firestore, "carts", this.user.email), {
         cart: this.cart,
       });
     },

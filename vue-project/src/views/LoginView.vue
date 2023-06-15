@@ -39,8 +39,16 @@ const loginViaEmail = async () => {
       email.value,
       passwordOne.value
     );
-    store.user = user;
-    router.push("/purchase");
+  store.user = user;
+  const cart = await getDoc(doc(firestore, "carts", user.email));
+
+  if (cart.exists()) {
+    store.cart = cart.data().cart;
+  } else {
+    await setDoc(doc(firestore, "carts", user.email), { cart: [] });
+    store.cart = cart.data().cart;
+  }
+  router.push("/purchase");
   } catch (error) {
     console.log(error);
   }
@@ -55,7 +63,7 @@ const registerViaGoogle = async () => {
     store.cart = cart.data().cart;
   } else {
     await setDoc(doc(firestore, "carts", user.email), { cart: [] });
-    store.cart = cart.data().cart;
+    store.cart = []
   }
   router.push("/purchase");
 };

@@ -196,5 +196,6 @@ button {
   color: white;
   justify-content: center;
   gap: 2rem;
+  margin-bottom: 20px;
 }
 </style>
