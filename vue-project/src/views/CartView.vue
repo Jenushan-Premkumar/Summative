@@ -6,12 +6,13 @@ const store = useStore();
 
 <template>
   <div>
-    <div v-for="movie in store.cart">
+    <div v-for="(movie, index) in store.cart" key:index>
       <h1>{{ movie.title }}</h1>
       <img
         class="image"
         :src="`https://image.tmdb.org/t/p/w500/${movie.poster}`"
       />
+      <button @click="store.removeFromCart(index)">Remove from Cart</button>
     </div>
   </div>
 </template>

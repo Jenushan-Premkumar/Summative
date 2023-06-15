@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { setDoc,doc } from "firebase/firestore"
+import { setDoc, doc } from "firebase/firestore";
 import { firestore } from "../firebase";
 
 export const useStore = defineStore("store", {
@@ -10,13 +10,21 @@ export const useStore = defineStore("store", {
   }),
   actions: {
     async addToCart(poster, title) {
-      console.log(this.cart)
+      console.log(this.cart);
       this.cart.push({
         poster,
         title,
       });
       console.log(this.cart);
-      await setDoc(doc(firestore, "carts", this.user.email), { cart: this.cart });
+      await setDoc(doc(firestore, "carts", this.user.email), {
+        cart: this.cart,
+      });
+    },
+    async removeFromCart(index) {
+      this.cart.splice(index, 1);
+      await setDoc(doc(firestore, "carts", this.user.email), {
+        cart: this.cart,
+      });
     },
   },
 });

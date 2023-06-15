@@ -1,7 +1,7 @@
 <script setup>
 import axios from "axios";
 import { useStore } from "../store";
-
+const movieStore = useStore();
 const store = useStore();
 const props = defineProps(["id"]);
 

@@ -1,8 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "../store/index.js";
-
+import { useStore } from "../store";
 import { auth, firestore } from "../firebase";
 import {
   createUserWithEmailAndPassword,
@@ -12,49 +11,91 @@ import {
 } from "firebase/auth";
 import { getDoc, doc, setDoc } from "@firebase/firestore";
 
-const router = useRouter();
-const username = ref("");
-const password = ref("");
 const store = useStore();
+const router = useRouter();
+const email = ref("");
+const passwordOne = ref("");
+const passwordTwo = ref("");
 
-const login = async () => {
-  const provider = new GoogleAuthProvider();
-  const { user } = await signInWithPopup(auth, provider);
-  store.user = user;
-  console.log(store.user)
-  const data = await getDoc(doc(firestore, "carts", user.email));
-  if (data.exists()){
-    store.cart = data.data().cart;
+const registerViaEmail = async () => {
+  if (passwordOne.value !== passwordTwo.value) {
+    alert("Password incorrect!");
+    return;
   }
-  else {
-    await setDoc(doc(firestore, "carts", user.email), {cart: []})
-    console.log (data)
-    store.cart = data.data().cart
+
+  const { user } = await createUserWithEmailAndPassword(
+    auth,
+    email.value,
+    passwordOne.value
+  );
+  store.user = user;
+  router.push("/purchase");
+};
+
+const loginViaEmail = async () => {
+  try {
+    const { user } = await signInWithEmailAndPassword(
+      auth,
+      email.value,
+      passwordOne.value
+    );
+    store.user = user;
+    router.push("/purchase");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const registerViaGoogle = async () => {
+  const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
+  store.user = user;
+  const cart = await getDoc(doc(firestore, "carts", user.email));
+
+  if (cart.exists()) {
+    store.cart = cart.data().cart;
+  } else {
+    await setDoc(doc(firestore, "carts", user.email), { cart: [] });
+    store.cart = cart.data().cart;
   }
   router.push("/purchase");
 };
 </script>
 
 <template>
-  <form class="form" @submit.prevent="login()">
-    <p>Login</p>
+  <div class="form">
+    <div>
+      <h1>Login via Email</h1>
+      <form class="login" @submit.prevent="loginViaEmail()">
+        <input v-model="email" type="email" placeholder="Email" />
+        <input v-model="passwordOne" type="password" placeholder="Password" />
 
-    <input type="text" placeholder="username" v-model="username" />
-    <input type="password" placeholder="password" v-model="password" />
-    <button>login</button>
-  
-    <button @click = "login()">Login with google</button>
-  
-  </form>
-
+        <input type="submit" value="Login" />
+      </form>
+    </div>
+    <hr />
+    <h1>Register via Email</h1>
+    <form class="setup" @submit.prevent="registerViaEmail()">
+      <input v-model="email" type="email" placeholder="Email" />
+      <input
+        v-model="passwordOne"
+        type="password"
+        placeholder="Enter Password"
+      />
+      <input
+        v-model="passwordTwo"
+        type="password"
+        placeholder="Re-enter Password"
+      />
+      <input type="submit" value="Register" />
+    </form>
+    <hr />
+    <div class="google">
+      <button @click="registerViaGoogle()">Login via Google</button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-body {
-  padding: 0;
-  margin: 0;
-}
-
 .form {
   font-family: "Roboto", sans-serif;
   position: relative;
@@ -62,7 +103,7 @@ body {
   background: #ffffff;
   opacity: 99%;
   max-width: 260px;
-  margin: 200px auto 100px;
+  margin: 125px auto 100px;
   padding: 10px 45px 30px 45px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -113,5 +154,22 @@ body {
 .form button:focus {
   background-color: #06c5cf;
   transition: all 1s ease 0s;
+}
+
+.setup,
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.google {
+  text-align: center;
+  margin-top: 25px;
+}
+
+h1 {
+  color: black;
+  font-size: 20px;
 }
 </style>

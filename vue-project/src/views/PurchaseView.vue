@@ -62,7 +62,8 @@ const getTMDBData = async (url, options, page) => {
 </script>
 
 <template>
-  <select class="select-box"
+  <select
+    class="select-box"
     v-model="genre"
     @change="
       getTMDBData('https://api.themoviedb.org/3/discover/movie', {
@@ -162,7 +163,7 @@ const getTMDBData = async (url, options, page) => {
   flex-wrap: wrap;
 }
 
-.select-box{
+.select-box {
   margin-left: 15px;
 }
 
