@@ -12,7 +12,9 @@ const store = useStore();
         class="image"
         :src="`https://image.tmdb.org/t/p/w500/${movie.poster}`"
       />
-      <button @click="store.removeFromCart(index)">Remove from Cart</button>
+      <button class="btn" @click="store.removeFromCart(index)">
+        <img class="trash" src="./trash.png" alt="" />
+      </button>
     </div>
   </div>
 </template>
@@ -31,5 +33,14 @@ const store = useStore();
 h1 {
   color: white;
   margin-left: 25px;
+}
+
+.trash {
+  width: 50px;
+}
+
+.btn {
+  color: #0a1828;
+  margin-left: 10px;
 }
 </style>
